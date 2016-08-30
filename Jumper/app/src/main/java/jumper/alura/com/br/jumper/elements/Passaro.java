@@ -17,8 +17,8 @@ public class Passaro {
     private static final int NUM_SPRITES = 8;
     private static final int SPRITE_WIDTH = 598;
     private static final int SPRITE_HEIGHT = 402;
-    public static final int LARGURA = SPRITE_WIDTH / 5;
-    public static final int ALTURA = SPRITE_HEIGHT / 5;
+    public static int LARGURA = SPRITE_WIDTH / 5;
+    public static int ALTURA = SPRITE_HEIGHT / 5;
 
     public static final float posicaoLateral = 200;
     private float posicaoVertical;
@@ -49,11 +49,11 @@ public class Passaro {
     }
 
     public void cai() {
-        this.posicaoVertical += 5;
+        this.posicaoVertical += 7;
     }
 
     public void pula() {
-        this.posicaoVertical -= 150;
+        this.posicaoVertical -= 120;
     }
 
     public float getPosicaoLateral() {
@@ -69,5 +69,10 @@ public class Passaro {
     }
     public Rect getPosicaoDesenho() {
         return new Rect((int)posicaoLateral, (int)posicaoVertical, LARGURA, ALTURA);
+    }
+
+    public void crescer(int variacaoDificuldade) {
+        this.LARGURA += variacaoDificuldade;
+        this.ALTURA += variacaoDificuldade;
     }
 }

@@ -2,6 +2,7 @@ package jumper.alura.com.br.jumper.engine;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -16,6 +17,8 @@ import jumper.alura.com.br.jumper.elements.FimJogo;
 import jumper.alura.com.br.jumper.elements.Fundo;
 import jumper.alura.com.br.jumper.elements.Passaro;
 import jumper.alura.com.br.jumper.elements.Pontuacao;
+import jumper.alura.com.br.jumper.elements.TituloJogo;
+import jumper.alura.com.br.jumper.graphic.Cores;
 
 /**
  * Created by marco on 27/08/2016.
@@ -29,6 +32,7 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
     private byte STATUS_RUNNING = 0, STATUS_GAMEOVER = 1, STATUS_MAINSCREEN = 2;
 
     private SurfaceHolder holder;
+    private TituloJogo tituloJogo;
     private Passaro passaro;
     private Fundo fundo;
     private Tela tela;
@@ -38,7 +42,6 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
     private final float posicialInicialCanoCima = 0;
     private final int NUM_CANOS = 3;
 
-    private float dificuldade = 0.1f;
     private float distanciaEntreCanos;
     private float gapMinimo;
 
@@ -57,17 +60,19 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
 
         inicializaElementos();
         setOnTouchListener(this);
+        gameStatus = STATUS_MAINSCREEN;
     }
 
     private void inicializaElementos() {
-        gameStatus = STATUS_RUNNING;
-
         tela = new Tela(this.context);
+        tituloJogo = new TituloJogo(tela);
+
         passaro = new Passaro(getResources(), tela.getAltura() / 2);
         fundo = new Fundo(getResources(), tela.getLargura(), tela.getAltura());
         pontos = new Pontuacao();
         distanciaEntreCanos = tela.getLargura();
         calcularDificuldade();
+        gapMinimo = passaro.ALTURA * 6;
 
         canos = new ArrayList<Cano[]>();
         for (int i = 0; i < NUM_CANOS; i++) {
@@ -77,13 +82,12 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
 
     @Override
     public void run() {
-
-
         while (isRunning) {
 
             if(gameStatus == STATUS_RUNNING) {
                 if(testaFimDoJogo()) {
                     gameStatus = STATUS_GAMEOVER;
+                    desabilitaToquePor(2000);
                 } else {
                     atualizaElementos();
                     atualizaQuadro();
@@ -109,18 +113,23 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
     private void atualizaInterface(int quadro) {
         if(holder.getSurface().isValid()) {
             Canvas canvas = holder.lockCanvas();
-
             fundo.desenhaNoCanvas(canvas);
             passaro.desenhaNoCanvas(canvas, quadro);
 
-            for (int i = 0; i < canos.size(); i++) {
-                Cano[] tmpCanos = canos.get(i);
-                if (tmpCanos != null) {
-                    tmpCanos[0].desenhaNo(canvas);
-                    tmpCanos[1].desenhaNo(canvas);
-                }
+            if(gameStatus == STATUS_MAINSCREEN) {
+                tituloJogo.desenha(canvas);
             }
-            pontos.desenha(canvas);
+
+            if(gameStatus == STATUS_RUNNING || gameStatus == STATUS_GAMEOVER) {
+                for (int i = 0; i < canos.size(); i++) {
+                    Cano[] tmpCanos = canos.get(i);
+                    if (tmpCanos != null) {
+                        tmpCanos[0].desenhaNo(canvas);
+                        tmpCanos[1].desenhaNo(canvas);
+                    }
+                }
+                pontos.desenha(canvas);
+            }
 
             if(gameStatus == STATUS_GAMEOVER) {
                 FimJogo fimJogo = new FimJogo();
@@ -174,10 +183,9 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
     }
 
     private void calcularDificuldade() {
-        //float variacaoDificuldade = (float) (dificuldade/10 + Math.pow(dificuldade, 2));
-        //dificuldade += variacaoDificuldade;
-        //distanciaEntreCanos = distanciaEntreCanos * (1 - variacaoDificuldade / 10);
-        gapMinimo = Passaro.ALTURA * 7;
+        float variacaoDificuldade = pontos.getPontos() / 5;
+        distanciaEntreCanos -= variacaoDificuldade;
+        gapMinimo -= variacaoDificuldade;
     }
 
     private float calculaPosicaoLateralCano(){
@@ -195,8 +203,8 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
         float posicaolLateralCano = calculaPosicaoLateralCano();
         posicoesCano.add(posicaolLateralCano);
 
-        canoCima = new Cano(tela, random, posicaolLateralCano, posicialInicialCanoCima);
-        canoBaixo = new Cano(tela, tela.getAltura() - random - gapMinimo, posicaolLateralCano, random + gapMinimo);
+        canoCima = new Cano(tela, random, posicaolLateralCano, posicialInicialCanoCima, true);
+        canoBaixo = new Cano(tela, tela.getAltura() - random - gapMinimo, posicaolLateralCano, random + gapMinimo, false);
 
         return new Cano[] { canoCima, canoBaixo };
     }
@@ -211,11 +219,23 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if(gameStatus == STATUS_RUNNING) {
-            passaro.pula();
-        } else { //if(gameStatus == STATUS_RUNNING) {
-            inicializaElementos();
+        if(isToqueHabilitado()) {
+            if (gameStatus == STATUS_RUNNING) {
+                passaro.pula();
+            } else if (gameStatus == STATUS_GAMEOVER || gameStatus == STATUS_MAINSCREEN) {
+                inicializaElementos();
+                gameStatus = STATUS_RUNNING;
+            }
         }
         return false;
+    }
+
+    long ultimaInterrupcaoToque = 0;
+    private boolean isToqueHabilitado() {
+        return System.currentTimeMillis() > ultimaInterrupcaoToque;
+    }
+
+    private void desabilitaToquePor(long milisegundos) {
+        ultimaInterrupcaoToque = System.currentTimeMillis() + milisegundos;
     }
 }
