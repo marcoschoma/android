@@ -14,6 +14,7 @@ import jumper.alura.com.br.jumper.R;
  */
 public class Passaro {
 
+    private float velocidade = 7;
     private static final int NUM_SPRITES = 8;
     private static final int SPRITE_WIDTH = 598;
     private static final int SPRITE_HEIGHT = 402;
@@ -49,7 +50,7 @@ public class Passaro {
     }
 
     public void cai() {
-        this.posicaoVertical += 7;
+        this.posicaoVertical += velocidade;
     }
 
     public void pula() {

@@ -2,7 +2,6 @@ package jumper.alura.com.br.jumper.engine;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -18,7 +17,6 @@ import jumper.alura.com.br.jumper.elements.Fundo;
 import jumper.alura.com.br.jumper.elements.Passaro;
 import jumper.alura.com.br.jumper.elements.Pontuacao;
 import jumper.alura.com.br.jumper.elements.TituloJogo;
-import jumper.alura.com.br.jumper.graphic.Cores;
 
 /**
  * Created by marco on 27/08/2016.
@@ -78,6 +76,7 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
         for (int i = 0; i < NUM_CANOS; i++) {
             canos.add(criaNovoCano());
         }
+        Cano.iniciarVelocidadeCanos();
     }
 
     @Override
@@ -186,6 +185,7 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
         float variacaoDificuldade = pontos.getPontos() / 5;
         distanciaEntreCanos -= variacaoDificuldade;
         gapMinimo -= variacaoDificuldade;
+        Cano.aumentarVelocidadeCanos((int)variacaoDificuldade);
     }
 
     private float calculaPosicaoLateralCano(){

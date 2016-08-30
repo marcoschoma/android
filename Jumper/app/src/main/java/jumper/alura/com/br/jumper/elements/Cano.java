@@ -18,6 +18,8 @@ public class Cano {
     private final float ALTURA;
     private final boolean isCanoCima;
     private final int tamanhoBocaCano = 60;
+    private static final int VELOCIDADE_BASE = 6;
+    private static int velocidade;
 
     public Cano(Tela tela, float tamanho, float posicaoInicialLateral, float posicaoInicialVertical, boolean isCanoCima) {
         this.tela = tela;
@@ -28,29 +30,30 @@ public class Cano {
     }
 
     public void desenhaNo(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setColor(0xFF00FF00);
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawRect(posicaoLateral, posicaoVertical, posicaoLateral + LARGURA, posicaoVertical + ALTURA, paint);
+        Paint paintCor = new Paint();
+        paintCor.setColor(0xFF00FF00);
+        paintCor.setStyle(Paint.Style.FILL);
+        canvas.drawRect(posicaoLateral, posicaoVertical, posicaoLateral + LARGURA, posicaoVertical + ALTURA, paintCor);
+
+        Paint paintBorda = new Paint();
+        paintBorda.setColor(0xFF000000);
+        paintBorda.setStyle(Paint.Style.STROKE);
+        paintBorda.setStrokeWidth(3);
+        canvas.drawRect(posicaoLateral, posicaoVertical, posicaoLateral + LARGURA, posicaoVertical + ALTURA, paintBorda);
 
         if(isCanoCima)
-            canvas.drawRect(posicaoLateral - 10, posicaoVertical + ALTURA - tamanhoBocaCano, posicaoLateral + LARGURA + 10, posicaoVertical + ALTURA, paint);
+            canvas.drawRect(posicaoLateral - 10, posicaoVertical + ALTURA - tamanhoBocaCano, posicaoLateral + LARGURA + 10, posicaoVertical + ALTURA, paintCor);
         else
-            canvas.drawRect(posicaoLateral - 10, posicaoVertical, posicaoLateral + LARGURA + 10, posicaoVertical + tamanhoBocaCano, paint);
-
-        paint.setColor(0xFF000000);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(3);
-        canvas.drawRect(posicaoLateral, posicaoVertical, posicaoLateral + LARGURA, posicaoVertical + ALTURA, paint);
+            canvas.drawRect(posicaoLateral - 10, posicaoVertical, posicaoLateral + LARGURA + 10, posicaoVertical + tamanhoBocaCano, paintCor);
 
         if(isCanoCima)
-            canvas.drawRect(posicaoLateral - 10, posicaoVertical + ALTURA - tamanhoBocaCano, posicaoLateral + LARGURA + 10, posicaoVertical + ALTURA, paint);
+            canvas.drawRect(posicaoLateral - 10, posicaoVertical + ALTURA - tamanhoBocaCano, posicaoLateral + LARGURA + 10, posicaoVertical + ALTURA, paintBorda);
         else
-            canvas.drawRect(posicaoLateral - 10, posicaoVertical, posicaoLateral + LARGURA + 10, posicaoVertical + tamanhoBocaCano, paint);
+            canvas.drawRect(posicaoLateral - 10, posicaoVertical, posicaoLateral + LARGURA + 10, posicaoVertical + tamanhoBocaCano, paintBorda);
     }
 
     public void anda() {
-        this.posicaoLateral -= 5;
+        this.posicaoLateral -= velocidade;
     }
 
     public float getPosicaoLateral() {
@@ -65,5 +68,13 @@ public class Cano {
         Rect b = new Rect((int)this.getPosicaoLateral(), (int)this.getPosicaoVertical(), (int)this.getPosicaoLateral() + this.LARGURA, (int)(this.getPosicaoVertical() + this.ALTURA));
 
         return a.intersect(b);
+    }
+
+    public static void iniciarVelocidadeCanos() {
+        velocidade = VELOCIDADE_BASE;
+    }
+
+    public static void aumentarVelocidadeCanos(int aumento) {
+        velocidade = VELOCIDADE_BASE + aumento;
     }
 }
