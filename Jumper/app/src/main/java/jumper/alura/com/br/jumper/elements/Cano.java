@@ -64,7 +64,8 @@ public class Cano {
     }
 
     public boolean temColisao(Passaro passaro) {
-        Rect a = new Rect((int)passaro.getPosicaoLateral(), (int)passaro.getPosicaoVertical(), (int)passaro.getPosicaoLateral() + passaro.LARGURA, (int)passaro.getPosicaoVertical() + passaro.ALTURA);
+        //Rect a = new Rect((int)passaro.getPosicaoLateral()+20, (int)passaro.getPosicaoVertical()+20, (int)passaro.getPosicaoLateral() + passaro.LARGURA-20, (int)passaro.getPosicaoVertical() + passaro.ALTURA-20);
+        Rect a = passaro.getRectColisao();
         Rect b = new Rect((int)this.getPosicaoLateral(), (int)this.getPosicaoVertical(), (int)this.getPosicaoLateral() + this.LARGURA, (int)(this.getPosicaoVertical() + this.ALTURA));
 
         return a.intersect(b);

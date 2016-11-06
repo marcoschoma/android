@@ -68,7 +68,7 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
         passaro = new Passaro(getResources(), tela.getAltura() / 2);
         fundo = new Fundo(getResources(), tela.getLargura(), tela.getAltura());
         pontos = new Pontuacao();
-        distanciaEntreCanos = tela.getLargura();
+        distanciaEntreCanos = 1000; //tela.getLargura();
         calcularDificuldade();
         gapMinimo = passaro.ALTURA * 6;
 
@@ -86,6 +86,7 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
             if(gameStatus == STATUS_RUNNING) {
                 if(testaFimDoJogo()) {
                     gameStatus = STATUS_GAMEOVER;
+                    passaro.para();
                     desabilitaToquePor(2000);
                 } else {
                     atualizaElementos();
@@ -140,7 +141,7 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
     }
 
     private void atualizaElementos() {
-        passaro.cai();
+        passaro.move();
         for (int i = 0; i < canos.size(); i++) {
             Cano[] tmpCanos = canos.get(i);
             if (tmpCanos != null) {
@@ -225,6 +226,7 @@ public class Game extends SurfaceView implements Runnable, View.OnTouchListener{
             } else if (gameStatus == STATUS_GAMEOVER || gameStatus == STATUS_MAINSCREEN) {
                 inicializaElementos();
                 gameStatus = STATUS_RUNNING;
+                passaro.cai();
             }
         }
         return false;
